@@ -127,7 +127,7 @@ namespace WebSocketSharp
       return req;
     }
 
-    internal static HttpRequest CreateWebSocketRequest (Uri uri)
+    internal static HttpRequest CreateWebSocketRequest (Uri uri, string altHost)
     {
       var req = new HttpRequest ("GET", uri.PathAndQuery);
       var headers = req.Headers;
@@ -136,9 +136,16 @@ namespace WebSocketSharp
       // See: https://tools.ietf.org/html/rfc6455#page-17
       var port = uri.Port;
       var schm = uri.Scheme;
-      headers["Host"] = (port == 80 && schm == "ws") || (port == 443 && schm == "wss")
-                        ? uri.DnsSafeHost
-                        : uri.Authority;
+      if (altHost == null)
+      {
+        headers["Host"] = (port == 80 && schm == "ws") || (port == 443 && schm == "wss")
+          ? uri.DnsSafeHost
+          : uri.Authority;
+      }
+      else
+      {
+        headers["Host"] = altHost;
+      }
 
       headers["Upgrade"] = "websocket";
       headers["Connection"] = "Upgrade";

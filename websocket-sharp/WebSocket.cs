@@ -117,6 +117,7 @@ namespace WebSocketSharp
     private Stream                         _stream;
     private TcpClient                      _tcpClient;
     private Uri                            _uri;
+    private string                         _altHost;
     private const string                   _version = "13";
     private TimeSpan                       _waitTime;
 
@@ -252,7 +253,9 @@ namespace WebSocketSharp
     ///   <paramref name="protocols"/> contains a value twice.
     ///   </para>
     /// </exception>
-    public WebSocket (string url, params string[] protocols)
+    public WebSocket (string url, params string[] protocols) : this(url, null, protocols) {}
+    
+    public WebSocket (string url, string altHost, params string[] protocols)
     {
       if (url == null)
         throw new ArgumentNullException ("url");
@@ -263,6 +266,8 @@ namespace WebSocketSharp
       string msg;
       if (!url.TryCreateWebSocketUri (out _uri, out msg))
         throw new ArgumentException (msg, "url");
+
+      _altHost = altHost;
 
       if (protocols != null && protocols.Length > 0) {
         if (!checkProtocols (protocols, out msg))
@@ -1318,7 +1323,7 @@ namespace WebSocketSharp
     // As client
     private HttpRequest createHandshakeRequest ()
     {
-      var ret = HttpRequest.CreateWebSocketRequest (_uri);
+      var ret = HttpRequest.CreateWebSocketRequest (_uri, _altHost);
 
       var headers = ret.Headers;
       if (!_origin.IsNullOrEmpty ())
