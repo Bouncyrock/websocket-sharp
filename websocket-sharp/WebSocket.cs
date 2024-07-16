@@ -331,6 +331,8 @@ namespace WebSocketSharp
       }
     }
 
+    private string TargetHost => _altHost ?? _uri.DnsSafeHost;
+
     #endregion
 
     #region Public Properties
@@ -1458,7 +1460,7 @@ namespace WebSocketSharp
     private ClientSslConfiguration getSslConfiguration ()
     {
       if (_sslConfig == null)
-        _sslConfig = new ClientSslConfiguration (_uri.DnsSafeHost);
+        _sslConfig = new ClientSslConfiguration(TargetHost);
 
       return _sslConfig;
     }
@@ -2131,7 +2133,7 @@ namespace WebSocketSharp
       if (_secure) {
         var conf = getSslConfiguration ();
         var host = conf.TargetHost;
-        if (host != _uri.DnsSafeHost)
+        if (host != TargetHost)
           throw new WebSocketException (
             CloseStatusCode.TlsHandshakeFailure, "An invalid host name is specified.");
 
